@@ -11,9 +11,9 @@ Infrastructure as Code (IaC) tool used to build, modify, and manage infrastructu
 ## Infrastructure as Code (IaC)
 IaC is the practice of managing IT infrastructure using configuration files rather than manual, interactive configuration tools.
 
-#### --> Declarative: You tell Terraform what you want (e.g., "I want 5 servers"), and Terraform figures out how to create them.
+#### Declarative: You tell Terraform what you want (e.g., "I want 5 servers"), and Terraform figures out how to create them.
     
-#### -->  Version Controlled: You can track the history of your infrastructure changes just like application code.
+#### Version Controlled: You can track the history of your infrastructure changes just like application code.
 
 ## Key Features
 (a) Cloud Agnostic: Unlike CloudFormation (AWS only) or ARM Templates (Azure only), Terraform works with any cloud provider (AWS, Google Cloud, Azure, Kubernetes, Alibaba, etc.).
@@ -68,14 +68,13 @@ Terraform uses HashiCorp Configuration Language (HCL) to define infrastructure. 
 
 Infrastructure elements managed by Terraform are called resources. These can include virtual machines, S3 buckets, VPCs, and databases. Each resource is defined in a block, like this example for creating an AWS VPC:
 
-<pre>
-resource "aws_vpc" "default_vpc" {
-    cidr_block = "172.31.0.0/16"
-    tags = {
-        Name = "example_vpc"
+    resource "aws_vpc" "default_vpc" {
+        cidr_block = "172.31.0.0/16"
+        tags = {
+            Name = "example_vpc"
+        }
     }
-}
-</pre>
+
 
 ### 3. Terraform Provider
 Terraform Provider defines the resource types and data sources Terraform can manage for that platform. Providers allow users to provision, configure, and manage cloud services, databases, networks, and more from a single workflow.
@@ -92,15 +91,15 @@ A Terraform module is a container for a set of related resources that perform a 
 
 Module Block: Defined using the `module` block in Terraform configuration, which includes the following arguments:-
     
-    source: Specifies the location of the module, which can be a local path or a URL.
+source: Specifies the location of the module, which can be a local path or a URL.
     
-    name: Provides a name to reference the module within the configuration.
+name: Provides a name to reference the module within the configuration.
     
-    version: Specifies a particular version of the module to use.
+version: Specifies a particular version of the module to use.
     
-    Resources and Variables: Within a module block, users can define the resources that make up the module, along with input and output variables. Input variables allow values to be passed into the module when it is called, and output variables allow the module to return values to the calling configuration.
+Resources and Variables: Within a module block, users can define the resources that make up the module, along with input and output variables. Input variables allow values to be passed into the module when it is called, and output variables allow the module to return values to the calling configuration.
     
-    Nesting: Modules can be nested, enabling the creation of complex infrastructure architectures using a hierarchical structure.
+Nesting: Modules can be nested, enabling the creation of complex infrastructure architectures using a hierarchical structure.
 
 ### 5. Terraform Provisioners
 Terraform Provisioners are useful for tasks like copying files or installing software on virtual machines. However, provisioners should be used sparingly, as they can introduce complexity and reduce the predictability of deployments.
@@ -154,35 +153,27 @@ Allows modules to be referenced via the module block like public ones.
 Improves governance, security, and code reusability across teams.
 
 ## Terraform Commands 
-#### 1. Terraform init
-    Action: Initializes the working directory.
-    What it does: Downloads the necessary Providers (plugins) required for your code (e.g., downloads the AWS plugin).
+#### 1. Terraform init: Initializes the working directory.
+What it does: Downloads the necessary Providers (plugins) required for your code (e.g., downloads the AWS plugin).
     $ terraform init
     Terraform init
 
-#### 2. Terraform Plan
-    Action: Creates an execution plan.
-    What it does: It compares your code to the current state and shows you a "preview" of what will happen. It will say, "I plan to create 3 resources and destroy 1." It does not make changes yet.
+#### 2. Terraform Plan: Creates an execution plan.
+What it does: It compares your code to the current state and shows you a "preview" of what will happen. It will say, "I plan to create 3 resources and destroy 1." It does not make changes yet.
 
-#### 3. Terraform apply 
-    Action: Executes the changes.
-    What it does: It reaches out to the Cloud API to create/delete resources to match your plan.
+#### 3. Terraform apply: Executes the changes.
+What it does: It reaches out to the Cloud API to create/delete resources to match your plan.
     $ terraform apply
     Terraform apply
 
-#### 4. Terraform destroy 
-    Action: Tears down everything.
-    What it does: Deletes all resources tracked in the state file.
+#### 4. Terraform destroy: Tears down everything.
+What it does: Deletes all resources tracked in the state file.
     $ terraform destroy
 
-#### 5. Terraform import
-    Imports an existing resource into the Terraform state, allowing it to be managed by Terraform.
-
+#### 5. Terraform import: Imports an existing resource into the Terraform state, allowing it to be managed by Terraform.
     $ terraform import
 
-#### 6. Terraform console
-    Opens an interactive console for evaluating expressions in the Terraform configuration.
-
+#### 6. Terraform console: Opens an interactive console for evaluating expressions in the Terraform configuration.
     $ terraform console
 
 #### 7. Terraform refresh 
