@@ -68,14 +68,14 @@ Terraform uses HashiCorp Configuration Language (HCL) to define infrastructure. 
 
 Infrastructure elements managed by Terraform are called resources. These can include virtual machines, S3 buckets, VPCs, and databases. Each resource is defined in a block, like this example for creating an AWS VPC:
 
-<ul>
+<pre>
 resource "aws_vpc" "default_vpc" {
     cidr_block = "172.31.0.0/16"
     tags = {
         Name = "example_vpc"
     }
 }
-</ul>
+</pre>
 
 ### 3. Terraform Provider
 Terraform Provider defines the resource types and data sources Terraform can manage for that platform. Providers allow users to provision, configure, and manage cloud services, databases, networks, and more from a single workflow.
