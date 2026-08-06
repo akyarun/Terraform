@@ -57,11 +57,11 @@ Terraform helps you automate the creation and management of infrastructure. To s
 #### terraform --help
 This command will display all the available commands, with the most commonly used ones listed first. The primary Terraform commands include:
 
-    init: Prepares your directory to run other Terraform commands.
-    validate: Checks if the configuration is valid.
-    plan: Shows what changes will be made to your infrastructure.
-    apply: Executes the changes to create or modify your infrastructure.
-    destroy: Deletes the infrastructure that was previously created.
+init: Prepares your directory to run other Terraform commands.
+validate: Checks if the configuration is valid.
+plan: Shows what changes will be made to your infrastructure.
+apply: Executes the changes to create or modify your infrastructure.
+destroy: Deletes the infrastructure that was previously created.
 
 ### 2. Terraform Language
 Terraform uses HashiCorp Configuration Language (HCL) to define infrastructure. HCL is designed to be both easy to read by humans and understandable by machines, making it a great fit for DevOps tools.
@@ -76,15 +76,16 @@ resource "aws_vpc" "default_vpc" {
     }
 }
 </ul>
+
 ### 3. Terraform Provider
 Terraform Provider defines the resource types and data sources Terraform can manage for that platform. Providers allow users to provision, configure, and manage cloud services, databases, networks, and more from a single workflow.
 
 #### Key Points:
 
-    Acts as a bridge between Terraform and infrastructure platforms.
-    Defines the resources and data sources available for management.
-    Supports cloud providers, data centers, network devices, and databases.
-    Enables consistent provisioning across multiple environments.
+* Acts as a bridge between Terraform and infrastructure platforms.
+* Defines the resources and data sources available for management.
+* Supports cloud providers, data centers, network devices, and databases.
+* Enables consistent provisioning across multiple environments.
 
 ### 4. Terraform Modules
 A Terraform module is a container for a set of related resources that perform a specific task, enabling organized and reusable infrastructure code.
@@ -116,24 +117,28 @@ Tracks real-world resources and their configurations.
 Enables accurate planning by detecting infrastructure changes.
 Can be stored locally but is safer when managed remotely.
 Remote state improves collaboration, consistency, and state locking.
-Local State
+
+### Local State
 By default, Terraform stores the state file locally on the machine where it is executed. This approach is simple and effective for individual use or small projects but can introduce risks in collaborative environments
 
 Simple to set up with no additional backend configuration
 Ideal for learning, experimentation, and small-scale deployments
 Faster access since the state file resides on the local system
-Limitations of Local State:
 
-Higher risk of accidental deletion or corruption
-Difficult to share safely across teams
-No built-in locking, increasing the chance of concurrent update conflicts
-Remote State
+### Limitations of Local State:
+
+* Higher risk of accidental deletion or corruption
+* Difficult to share safely across teams
+* No built-in locking, increasing the chance of concurrent update conflicts
+
+### Remote State
 Remote state stores the Terraform state file in a shared backend such as AWS S3, Azure Storage, or Terraform Cloud. It is considered a best practice for production environments because it enhances security, collaboration, and reliability.
 
-Enables team collaboration through centralized state management
-Supports state locking to prevent simultaneous modifications
-Improves security with encryption and controlled access
-Common Remote Backends:
+* Enables team collaboration through centralized state management
+* Supports state locking to prevent simultaneous modifications
+* Improves security with encryption and controlled access
+
+### Common Remote Backends:
 
 AWS S3 (often paired with DynamoDB for state locking)
 Terraform Cloud
@@ -149,58 +154,68 @@ Allows modules to be referenced via the module block like public ones.
 Improves governance, security, and code reusability across teams.
 
 ## Terraform Commands 
-1. Terraform init
-Action: Initializes the working directory.
-What it does: Downloads the necessary Providers (plugins) required for your code (e.g., downloads the AWS plugin).
-$ terraform init
-Terraform init
-2. Terraform Plan
-Action: Creates an execution plan.
-What it does: It compares your code to the current state and shows you a "preview" of what will happen. It will say, "I plan to create 3 resources and destroy 1." It does not make changes yet.
-3. Terraform apply 
-Action: Executes the changes.
-What it does: It reaches out to the Cloud API to create/delete resources to match your plan.
-$ terraform apply
-Terraform apply
-4. Terraform destroy 
-Action: Tears down everything.
-What it does: Deletes all resources tracked in the state file.
-$ terraform destroy
-5. Terraform import
-Imports an existing resource into the Terraform state, allowing it to be managed by Terraform.
+#### 1. Terraform init
+    Action: Initializes the working directory.
+    What it does: Downloads the necessary Providers (plugins) required for your code (e.g., downloads the AWS plugin).
+    $ terraform init
+    Terraform init
 
-$ terraform import
-6. Terraform console
-Opens an interactive console for evaluating expressions in the Terraform configuration.
+#### 2. Terraform Plan
+    Action: Creates an execution plan.
+    What it does: It compares your code to the current state and shows you a "preview" of what will happen. It will say, "I plan to create 3 resources and destroy 1." It does not make changes yet.
 
-$ terraform console
-7. Terraform refresh 
-This command updates the state of your infrastructure to reflect the actual state of your resources. It is useful when you want to ensure that your Terraform state is in sync with the actual state of your infrastructure.
+#### 3. Terraform apply 
+    Action: Executes the changes.
+    What it does: It reaches out to the Cloud API to create/delete resources to match your plan.
+    $ terraform apply
+    Terraform apply
 
-$ terraform refresh
-Basic Terraform Example
+#### 4. Terraform destroy 
+    Action: Tears down everything.
+    What it does: Deletes all resources tracked in the state file.
+    $ terraform destroy
+
+#### 5. Terraform import
+    Imports an existing resource into the Terraform state, allowing it to be managed by Terraform.
+
+    $ terraform import
+
+#### 6. Terraform console
+    Opens an interactive console for evaluating expressions in the Terraform configuration.
+
+    $ terraform console
+
+#### 7. Terraform refresh 
+    This command updates the state of your infrastructure to reflect the actual state of your resources. It is useful when you want to ensure that your Terraform state is in sync with the actual state of your infrastructure.
+
+    $ terraform refresh
+
+## Basic Terraform Example
 Below is a main.tf file that provisions a simple EC2 instance on AWS.
 
-# 1. Define the Provider
-provider "aws" {
-  region = "us-east-1"
-}
+        # 1. Define the Provider
+        provider "aws" {
+        region = "us-east-1"
+        }
 
-# 2. Define a Resource (The "What")
-# Syntax: resource "type" "name"
-resource "aws_instance" "my_web_server" {
-  ami           = "ami-0c55b159cbfafe1f0" # Ubuntu AMI ID
-  instance_type = "t2.micro"
+        # 2. Define a Resource (The "What")
+        # Syntax: resource "type" "name"
+        resource "aws_instance" "my_web_server" {
+        ami           = "ami-0c55b159cbfafe1f0" # Ubuntu AMI ID
+        instance_type = "t2.micro"
 
-  tags = {
-    Name = "DevOps-Server"
-  }
-}
-Explaining the Syntax (HCL)
+        tags = {
+            Name = "DevOps-Server"
+        }
+        }
+
+#### Explaining the Syntax (HCL)
 resource: The keyword to define infrastructure.
 aws_instance: The type of resource (provided by the AWS plugin).
 my_web_server: The internal name Terraform uses to track this resource.
 Arguments: The block inside { } defines the properties (like ami and instance_type).
+
+----------------------****--------------------------------****---------------------****--------------------------****-----------------------------
 Terraform vs Other Infrastructure as Code (IaC) Tools
 Infrastructure as Code (IaC) tools are essential for automating and managing infrastructure. Terraform is a popular choice, but there are several other tools that serve similar purposes. Here’s a straightforward comparison to help you understand the differences.
 
