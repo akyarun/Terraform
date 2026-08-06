@@ -2,21 +2,24 @@
 
 Infrastructure as Code (IaC) tool used to build, modify, and manage infrastructure safely and efficiently.
 
-    Automates infrastructure provisioning instead of manual console configuration.
-    Enables version control, collaboration, and repeatable deployments.
-    Reduces human errors while improving scalability and consistency.
+    * Automates infrastructure provisioning instead of manual console configuration.
+
+    * Enables version control, collaboration, and repeatable deployments.
+    
+    * Reduces human errors while improving scalability and consistency.
 
 ## Infrastructure as Code (IaC)
 IaC is the practice of managing IT infrastructure using configuration files rather than manual, interactive configuration tools.
 
-        Declarative: You tell Terraform what you want (e.g., "I want 5 servers"), and Terraform figures out how to create them.
-        Version Controlled: You can track the history of your infrastructure changes just like application code.
+--> Declarative: You tell Terraform what you want (e.g., "I want 5 servers"), and Terraform figures out how to create them.
+    
+--> Version Controlled: You can track the history of your infrastructure changes just like application code.
 
 ## Key Features
-    (a) Cloud Agnostic: Unlike CloudFormation (AWS only) or ARM Templates (Azure only), Terraform works with any cloud provider (AWS, Google Cloud, Azure, Kubernetes, Alibaba, etc.).
-    (b) Immutable Infrastructure: Terraform typically replaces servers rather than changing them, reducing "configuration drift" (where servers become inconsistent over time).
-    (c) State Management: Terraform keeps track of your real-world resources in a state file, acting as the "source of truth."
-    (d) Modular: You can package code into Modules to reuse common patterns (e.g., a standard "Web Server" module used by all teams).
+(a) Cloud Agnostic: Unlike CloudFormation (AWS only) or ARM Templates (Azure only), Terraform works with any cloud provider (AWS, Google Cloud, Azure, Kubernetes, Alibaba, etc.).
+(b) Immutable Infrastructure: Terraform typically replaces servers rather than changing them, reducing "configuration drift" (where servers become inconsistent over time).
+(c) State Management: Terraform keeps track of your real-world resources in a state file, acting as the "source of truth."
+(d) Modular: You can package code into Modules to reuse common patterns (e.g., a standard "Web Server" module used by all teams).
 
 ## Working
 Terraform uses a declarative configuration language to define infrastructure and manage resources in a predictable, automated workflow. It allows teams to provision, update, and delete infrastructure consistently while supporting multiple cloud providers and environments. This flexibility makes Terraform a widely adopted tool for scalable and reusable infrastructure management.
