@@ -2,32 +2,38 @@
 
 Infrastructure as Code (IaC) tool used to build, modify, and manage infrastructure safely and efficiently.
 
-    * Automates infrastructure provisioning instead of manual console configuration.
+* Automates infrastructure provisioning instead of manual console configuration.
 
-    * Enables version control, collaboration, and repeatable deployments.
+* Enables version control, collaboration, and repeatable deployments.
     
-    * Reduces human errors while improving scalability and consistency.
+* Reduces human errors while improving scalability and consistency.
 
 ## Infrastructure as Code (IaC)
 IaC is the practice of managing IT infrastructure using configuration files rather than manual, interactive configuration tools.
 
---> Declarative: You tell Terraform what you want (e.g., "I want 5 servers"), and Terraform figures out how to create them.
+#### --> Declarative: You tell Terraform what you want (e.g., "I want 5 servers"), and Terraform figures out how to create them.
     
---> Version Controlled: You can track the history of your infrastructure changes just like application code.
+#### -->  Version Controlled: You can track the history of your infrastructure changes just like application code.
 
 ## Key Features
 (a) Cloud Agnostic: Unlike CloudFormation (AWS only) or ARM Templates (Azure only), Terraform works with any cloud provider (AWS, Google Cloud, Azure, Kubernetes, Alibaba, etc.).
+
 (b) Immutable Infrastructure: Terraform typically replaces servers rather than changing them, reducing "configuration drift" (where servers become inconsistent over time).
+
 (c) State Management: Terraform keeps track of your real-world resources in a state file, acting as the "source of truth."
+
 (d) Modular: You can package code into Modules to reuse common patterns (e.g., a standard "Web Server" module used by all teams).
 
 ## Working
 Terraform uses a declarative configuration language to define infrastructure and manage resources in a predictable, automated workflow. It allows teams to provision, update, and delete infrastructure consistently while supporting multiple cloud providers and environments. This flexibility makes Terraform a widely adopted tool for scalable and reusable infrastructure management.
 
-    1. Defines infrastructure as code for repeatable and reliable deployments.
-    2. Provisions, modifies, and destroys resources through an automated workflow.
-    3. Supports multi-cloud, on-premises, and hybrid environments with a single configuration.
-    4. Enhances scalability, reusability, and operational efficiency across industries.
+1. Defines infrastructure as code for repeatable and reliable deployments.
+
+2. Provisions, modifies, and destroys resources through an automated workflow.
+
+3. Supports multi-cloud, on-premises, and hybrid environments with a single configuration.
+
+4. Enhances scalability, reusability, and operational efficiency across industries.
 
 ## Architecture
 To understand how Terraform works, you need to understand its core components.
@@ -51,51 +57,57 @@ Terraform helps you automate the creation and management of infrastructure. To s
 #### terraform --help
 This command will display all the available commands, with the most commonly used ones listed first. The primary Terraform commands include:
 
-init: Prepares your directory to run other Terraform commands.
-validate: Checks if the configuration is valid.
-plan: Shows what changes will be made to your infrastructure.
-apply: Executes the changes to create or modify your infrastructure.
-destroy: Deletes the infrastructure that was previously created.
+    init: Prepares your directory to run other Terraform commands.
+    validate: Checks if the configuration is valid.
+    plan: Shows what changes will be made to your infrastructure.
+    apply: Executes the changes to create or modify your infrastructure.
+    destroy: Deletes the infrastructure that was previously created.
 
 ### 2. Terraform Language
 Terraform uses HashiCorp Configuration Language (HCL) to define infrastructure. HCL is designed to be both easy to read by humans and understandable by machines, making it a great fit for DevOps tools.
 
 Infrastructure elements managed by Terraform are called resources. These can include virtual machines, S3 buckets, VPCs, and databases. Each resource is defined in a block, like this example for creating an AWS VPC:
 
-resource "aws_vpc" "default_vpc" {
-    cidr_block = "172.31.0.0/16"
-    tags = {
-        Name = "example_vpc"
+<ul>
+    resource "aws_vpc" "default_vpc" {
+        cidr_block = "172.31.0.0/16"
+        tags = {
+            Name = "example_vpc"
+        }
     }
-}
-
+</ul>
 ### 3. Terraform Provider
 Terraform Provider defines the resource types and data sources Terraform can manage for that platform. Providers allow users to provision, configure, and manage cloud services, databases, networks, and more from a single workflow.
 
-Key Points:
+#### Key Points:
 
-Acts as a bridge between Terraform and infrastructure platforms.
-Defines the resources and data sources available for management.
-Supports cloud providers, data centers, network devices, and databases.
-Enables consistent provisioning across multiple environments.
+    Acts as a bridge between Terraform and infrastructure platforms.
+    Defines the resources and data sources available for management.
+    Supports cloud providers, data centers, network devices, and databases.
+    Enables consistent provisioning across multiple environments.
 
 ### 4. Terraform Modules
 A Terraform module is a container for a set of related resources that perform a specific task, enabling organized and reusable infrastructure code.
 
 Module Block: Defined using the `module` block in Terraform configuration, which includes the following arguments:-
-source: Specifies the location of the module, which can be a local path or a URL.
-name: Provides a name to reference the module within the configuration.
-version: Specifies a particular version of the module to use.
-Resources and Variables: Within a module block, users can define the resources that make up the module, along with input and output variables. Input variables allow values to be passed into the module when it is called, and output variables allow the module to return values to the calling configuration.
-Nesting: Modules can be nested, enabling the creation of complex infrastructure architectures using a hierarchical structure.
+    
+    source: Specifies the location of the module, which can be a local path or a URL.
+    
+    name: Provides a name to reference the module within the configuration.
+    
+    version: Specifies a particular version of the module to use.
+    
+    Resources and Variables: Within a module block, users can define the resources that make up the module, along with input and output variables. Input variables allow values to be passed into the module when it is called, and output variables allow the module to return values to the calling configuration.
+    
+    Nesting: Modules can be nested, enabling the creation of complex infrastructure architectures using a hierarchical structure.
 
 ### 5. Terraform Provisioners
 Terraform Provisioners are useful for tasks like copying files or installing software on virtual machines. However, provisioners should be used sparingly, as they can introduce complexity and reduce the predictability of deployments.
 
-Run commands or scripts after resource provisioning.
-Commonly used for file transfers and software setup.
-Can increase complexity and require elevated permissions.
-Recommended only when native Terraform resources cannot achieve the task.
+* Run commands or scripts after resource provisioning.
+* Commonly used for file transfers and software setup.
+* Can increase complexity and require elevated permissions.
+* Recommended only when native Terraform resources cannot achieve the task.
 
 ### 6. Terraform State
 Terraform state files allows Terraform to compare the current infrastructure with the desired state and apply only the necessary changes. While the state can be stored locally, remote storage is recommended for team environments to maintain consistency and prevent conflicts.
