@@ -26,15 +26,14 @@ To prevent this going forward: use a remote backend with locking, like S3 + Dyna
 5. Separate Workspaces: Never let Dev, QA and Production share one state.
 
     dev.tfstate
-
     qa.tfstate
-
     prod.tfstate
 
 #### Interview answers:
 "If two engineers run terraform apply simultaneously and the state becomes inconsistent, my first priority is to stop all Terraform operations to avoid further damage. I verify the remote backend, inspect the state, and compare it with the actual infrastructure. If the backend supports version history, I restore the last known good state only after confirming it matches the deployed resources. If specific resources are missing from state, I use terraform import; if stale entries exist, I remove them with terraform state rm. Finally, I validate the environment using terraform plan before allowing another apply. To prevent this in production, I always use a remote backend with state locking and versioning, restrict terraform apply to CI/CD pipelines, enforce code reviews, and isolate environments with separate state files. These controls ensure only one apply can modify the state at a time and make recovery straightforward if an issue occurs."
 
-### ---------------------------------------------------------------------------------------------------------------------
+### --------------------------------------------------------------------------------------------------------------
+
 ### Q2
 A resource was deleted manually in the AWS console, but Terraform still thinks it exists. What happens on the next apply, and how do you fix it?
 
