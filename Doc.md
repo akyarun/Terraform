@@ -69,14 +69,14 @@ Popular IaC tools: Terraform, AWS CloudFormation, Pulumi, Ansible, Azure Resourc
 This is one of the most important distinctions in IaC.
 
 ### Imperative approach 
-    — you specify the exact steps to reach a goal, in order.
+     you specify the exact steps to reach a goal, in order.
 
 **"Create a VM. Then attach a disk. Then install these packages. Then start this service."**
 
 You're telling the system how to do something, step by step. Tools like shell scripts, Ansible (mostly), and Chef tend to lean imperative.
 
 ### Declarative approach 
-    — you specify the desired end state, and let the tool figure out how to get there.
+     you specify the desired end state, and let the tool figure out how to get there.
 
 **"I want 1 VM with this disk, this OS, and this service running."**
 
@@ -84,7 +84,8 @@ You don't say how — you say what. The tool (e.g., Terraform) compares the desi
 
 Terraform is declarative.
 
-## Aspect	                    Imperative	                     Declarative
+ Aspect	                    Imperative	                     Declarative
+ --------------------------------------------------------------------------------------------------------------
 You define	                 Steps to execute	            Desired end state
 Order matters?	                Yes, strictly	            Tool figures out order (dependency graph)
 Re-running same code	May cause errors/duplicates	        Safe — tool only makes needed changes (idempotent)
@@ -116,3 +117,53 @@ if you run your Terraform code today, and again next week, Terraform checks the 
 9. **Documentation as a side effect** — The code itself documents exactly what infrastructure exists — no need for separate, often-outdated wiki pages.
 
 10. **Cost control** — Easier to spin down unused/temporary environments (e.g., a terraform destroy after a demo) since everything is tracked and reproducible.
+
+## What is Terraform?
+
+### Terraform overview
+
+Terraform is an open-source **Infrastructure as Code (IaC)** tool created by **HashiCorp**. It lets you define infrastructure — servers, networks, storage, DNS, databases, and more — using a declarative configuration language, and then automatically creates, updates, or destroys that infrastructure to match your code.
+
+Core workflow, in three steps:
+
+**Write** — Define desired infrastructure in .tf files using HashiCorp Configuration Language (HCL).
+
+**Plan** — Run terraform plan to preview exactly what Terraform will create, change, or destroy — before anything actually happens.
+
+**Apply** — Run terraform apply to execute those changes against real infrastructure (AWS, Azure, GCP, etc.).
+
+Terraform keeps track of everything it manages in a state file, which acts as its source of truth for what currently exists — this is how it knows what to change on the next run instead of recreating everything from scratch.
+
+## HashiCorp Terraform
+
+    Terraform is built and maintained by HashiCorp, a company known for a suite of DevOps/infrastructure tools:
+
+**Terraform** — infrastructure provisioning
+**Vault** — secrets management
+**Consul** — service networking/discovery
+**Nomad** — workload orchestration
+**Packer** — machine image building
+
+Terraform is written in Go and uses HCL (HashiCorp Configuration Language) — a language designed to be both human-readable and machine-friendly, striking a balance between JSON's machine-parsability and a more approachable syntax for humans.
+
+One important note for anyone following Terraform closely: in 2023, HashiCorp changed Terraform's license from the open-source MPL 2.0 to the Business Source License (BSL), which restricts certain competing commercial uses. In response, the community forked the last MPL-licensed version into OpenTofu, now a Linux Foundation project that remains fully open-source and is largely a drop-in replacement. This is worth knowing since some organizations choose OpenTofu over Terraform specifically because of this licensing shift.
+
+## Why Terraform is popular in DevOps
+
+1.**Declarative & predictable** — You describe the end state; Terraform figures out the steps, and terraform plan shows you exactly what will happen before it happens — reducing risky surprises.
+2.**State management** — Terraform tracks real-world infrastructure state, enabling it to detect drift (when reality doesn't match code) and reconcile it.
+3.**Huge ecosystem of providers** — Thousands of providers/plugins exist (AWS, Azure, GCP, Kubernetes, GitHub, Datadog, Cloudflare, and many more), so Terraform can manage almost any tool or service with an API, not just cloud infrastructure.
+4.**Modularity & reusability** — Terraform modules let teams package reusable infrastructure patterns (e.g., "standard VPC setup") and share them across projects.
+5.**Strong community & documentation** — Large user base, an official public registry of modules/providers, and years of battle-testing across the industry.
+6.**Fits naturally into CI/CD** — Terraform code can be linted, tested, reviewed via pull requests, and applied automatically in pipelines — bringing infrastructure changes into the same rigor as application code deploys.
+7.**Plan/Apply safety net** — The separation between preview (plan) and execution (apply) is a major trust-builder for teams making changes to production infrastructure.
+
+## Cloud-agnostic tool
+
+Terraform is cloud-agnostic, meaning it isn't tied to a single cloud provider. Unlike AWS CloudFormation (AWS-only) or Azure Resource Manager templates (Azure-only), Terraform uses a provider plugin model:
+
+Same HCL language, same workflow (init, plan, apply) regardless of which infrastructure you're managing.
+You can manage AWS, Azure, GCP, Kubernetes, Oracle Cloud, DigitalOcean, and hundreds of other platforms — even multiple clouds in the same configuration.
+This makes Terraform especially valuable for organizations that are multi-cloud, migrating between clouds, or want to avoid vendor lock-in on the tooling side (though the underlying resources themselves are still provider-specific — Terraform doesn't abstract away the differences between, say, an AWS EC2 instance and an Azure VM, it just lets you manage both with one tool and workflow).
+
+Important nuance: "cloud-agnostic tool" ≠ "cloud-agnostic infrastructure." Terraform gives you one consistent way to manage different clouds, but your actual .tf code for AWS resources will look different from your code for Azure resources, since each cloud's services and APIs are different. What's portable is the tool and workflow, not necessarily the configuration itself.
