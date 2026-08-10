@@ -154,19 +154,19 @@ One important note for anyone following Terraform closely: in 2023, HashiCorp ch
 
 ## Why Terraform is popular in DevOps
 
-1.**Declarative & predictable** — You describe the end state; Terraform figures out the steps, and terraform plan shows you exactly what will happen before it happens — reducing risky surprises.
+1. **Declarative & predictable** — You describe the end state; Terraform figures out the steps, and terraform plan shows you exactly what will happen before it happens — reducing risky surprises.
 
-2.**State management** — Terraform tracks real-world infrastructure state, enabling it to detect drift (when reality doesn't match code) and reconcile it.
+2. **State management** — Terraform tracks real-world infrastructure state, enabling it to detect drift (when reality doesn't match code) and reconcile it.
 
-3.**Huge ecosystem of providers** — Thousands of providers/plugins exist (AWS, Azure, GCP, Kubernetes, GitHub, Datadog, Cloudflare, and many more), so Terraform can manage almost any tool or service with an API, not just cloud infrastructure.
+3. **Huge ecosystem of providers** — Thousands of providers/plugins exist (AWS, Azure, GCP, Kubernetes, GitHub, Datadog, Cloudflare, and many more), so Terraform can manage almost any tool or service with an API, not just cloud infrastructure.
 
-4.**Modularity & reusability** — Terraform modules let teams package reusable infrastructure patterns (e.g., "standard VPC setup") and share them across projects.
+4. **Modularity & reusability** — Terraform modules let teams package reusable infrastructure patterns (e.g., "standard VPC setup") and share them across projects.
 
-5.**Strong community & documentation** — Large user base, an official public registry of modules/providers, and years of battle-testing across the industry.
+5. **Strong community & documentation** — Large user base, an official public registry of modules/providers, and years of battle-testing across the industry.
 
-6.**Fits naturally into CI/CD** — Terraform code can be linted, tested, reviewed via pull requests, and applied automatically in pipelines — bringing infrastructure changes into the same rigor as application code deploys.
+6. **Fits naturally into CI/CD** — Terraform code can be linted, tested, reviewed via pull requests, and applied automatically in pipelines — bringing infrastructure changes into the same rigor as application code deploys.
 
-7.**Plan/Apply safety net** — The separation between preview (plan) and execution (apply) is a major trust-builder for teams making changes to production infrastructure.
+7. **Plan/Apply safety net** — The separation between preview (plan) and execution (apply) is a major trust-builder for teams making changes to production infrastructure.
 
 ## Cloud-agnostic tool
 
@@ -229,58 +229,58 @@ Core commands and what happens internally:
 ```
     terraform init
 ```
-** Downloads and installs the providers listed in **required_providers**
+* Downloads and installs the providers listed in **required_providers**
 
-** Sets up the backend (where state will be stored)
+* Sets up the backend (where state will be stored)
 
-** Creates a **.terraform/** directory locally with provider binaries
+* Creates a **.terraform/** directory locally with provider binaries
 
 ```
     terraform plan
 ```
-** Reads current .tf code
+* Reads current .tf code
 
-** Reads current state file
+* Reads current state file
 
-** (Optionally) refreshes state by querying real infrastructure
+* (Optionally) refreshes state by querying real infrastructure
 
-** Computes a diff: what needs to be added, changed, or destroyed
+* Computes a diff: what needs to be added, changed, or destroyed
 
-** Shows you this diff — nothing is changed yet
+* Shows you this diff — nothing is changed yet
 
 
 ```
     terraform apply
 ```
 
-** Re-runs the plan (or uses a saved plan file)
+* Re-runs the plan (or uses a saved plan file)
 
-** Asks for confirmation (yes)
+* Asks for confirmation (yes)
 
-** Calls provider APIs in dependency order to create/update/destroy real resources
+* Calls provider APIs in dependency order to create/update/destroy real resources
 
-** Writes the results into the state file
+* Writes the results into the state file
 
 ```
     terraform destroy
 ```
 
-** Same as apply, but the **"desired state"** is treated as empty — so everything Terraform is tracking gets deleted
+* Same as apply, but the **"desired state"** is treated as empty — so everything Terraform is tracking gets deleted
 
 ### Core commands:
 
 ```
-    terraform init      # Initializes working directory, downloads providers
-    terraform plan       # Shows what WILL change (preview, no actual changes made)
-    terraform apply       # Executes the changes (creates/updates/destroys real resources)
-    terraform destroy    # Tears down everything Terraform manages in this config
-    terraform validate   # Checks syntax/config validity without contacting the cloud
-    terraform fmt        # Auto-formats .tf files to standard style
+terraform init      # Initializes working directory, downloads providers
+terraform plan       # Shows what WILL change (preview, no actual changes made)
+terraform apply       # Executes the changes (creates/updates/destroys real resources)
+terraform destroy    # Tears down everything Terraform manages in this config
+terraform validate   # Checks syntax/config validity without contacting the cloud
+terraform fmt        # Auto-formats .tf files to standard style
 ```
 
 ### Example workflow:
 
-```bash```
+```
     $ terraform init
     Initializing the backend...
     Initializing provider plugins...
@@ -306,7 +306,7 @@ Core commands and what happens internally:
     aws_instance.web: Creating...
     aws_instance.web: Creation complete after 32s [id=i-0a1b2c3d4e5f]
     Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-```bash```
+```
 
 **Note**:Notice init runs once per project setup, then plan → apply becomes your everyday loop.
 
