@@ -47,6 +47,7 @@ The value only becomes known after the resource is created — that's exactly wh
     }
 
 |Argument	        |                   Purpose                                                             |
+|------------------|----------------------------------------------------------------------------------------|
 |description    	|Documents what the output represents (good practice, shows in docs/tooling)            |
 |value	            | The actual expression/value to expose — can reference any resource attribute, variable, or computed expression    |
 |sensitive	        |If true, hides the value from CLI output (still stored in state file though — see note below)  |
