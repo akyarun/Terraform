@@ -490,20 +490,11 @@ Why it's needed: Terraform config describes desired state. The state file record
 
 Every terraform plan involves comparing three things, not two:
 
-|	                       |            What it is
-|**Configuration**	     |   Your .tf files — the desired state   
-|**State file**          |	Terraform's record of what it created — the last known state
-|**Real infrastructure** |	What's actually running in AWS/Azure/GCP right now — the actual state
-
-
-Configuration (desired)  ──┐
-                            ├──►  terraform plan  ──►  "Here's what I'll change"
-State file (last known)  ──┘
-        ▲
-        │ (refresh step queries real infra to update this)
-        │
-Real infrastructure (actual)
-
+|	                       |            What it is                                                       |
+|-------------------------|----------------------------------------------------------------------------|
+|**Configuration**	     |   Your .tf files — the desired state                                        |
+|**State file**          |	Terraform's record of what it created — the last known state               |
+|**Real infrastructure** |	What's actually running in AWS/Azure/GCP right now — the actual state      |  
 
 #### Example — simplified terraform.tfstate content (JSON):
 
@@ -536,6 +527,7 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
 
 ## What the state file enables:
 
+|------------------------------------------------|----------------------------------------------------|
 |Without state                                   |       	With state                                  |
 |Terraform doesn't know what already exists	     |  Terraform knows exactly what it manages           |
 |Every apply might try to recreate everything	   |   Only diffs are applied (idempotent)              |
