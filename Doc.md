@@ -471,23 +471,27 @@ These aren't provider-specific; every resource block supports them regardless of
 
 **count** — creates N instances from one block, indexed [0], [1], etc.
 
-resource "aws_instance" "web" {
-  count         = 3
-  ami           = "ami-0abcdef1234567890"
-  instance_type = "t3.micro"
-}
+```
+  resource "aws_instance" "web" {
+    count         = 3
+    ami           = "ami-0abcdef1234567890"
+    instance_type = "t3.micro"
+  }
+```
 
-# addresses: aws_instance.web[0], web[1], web[2]
+#addresses: aws_instance.web[0], web[1], web[2]
 
 **for_each** — creates one instance per key in a map or set, addressed by key instead of index. Preferred over count when items might be added/removed from the middle of a list, since count reindexes everything and can cause unwanted destroy/recreate cascades.
 
+```
 resource "aws_instance" "web" {
   for_each      = { small = "t3.micro", large = "t3.large" }
   ami           = "ami-0abcdef1234567890"
   instance_type = each.value
 }
+```
 
-# addresses: aws_instance.web["small"], web["large"]
+#addresses: aws_instance.web["small"], web["large"]
 
 **provider** — selects a specific aliased provider configuration (shown in the earlier multi-region example).
 
