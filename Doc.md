@@ -187,7 +187,7 @@ Terraform's architecture is built around a simple loop: you declare what you wan
 Four components make this work: 
 **CLI (Core), Providers, Resources, and the State file** . Let's go through each, then go deep on state.
 
-1. Terraform CLI (Core)
+## 1. Terraform CLI (Core)
 
 Terraform Core is the engine. It does four jobs:
 
@@ -200,46 +200,46 @@ Terraform Core is the engine. It does four jobs:
 4. Executes that plan by calling provider APIs
 
 Core commands and what happens internally:
-```
-    terraform init
-```
-* Downloads and installs the providers listed in **required_providers**
 
-* Sets up the backend (where state will be stored)
+## terraform init
 
-* Creates a **.terraform/** directory locally with provider binaries
+  * Downloads and installs the providers listed in **required_providers**
 
-```
-    terraform plan
-```
-* Reads current .tf code
+  * Sets up the backend (where state will be stored)
 
-* Reads current state file
-
-* (Optionally) refreshes state by querying real infrastructure
-
-* Computes a diff: what needs to be added, changed, or destroyed
-
-* Shows you this diff — nothing is changed yet
+  * Creates a **.terraform/** directory locally with provider binaries
 
 
-```
-    terraform apply
-```
+## terraform plan
 
-* Re-runs the plan (or uses a saved plan file)
+  * Reads current .tf code
 
-* Asks for confirmation (yes)
+  * Reads current state file
 
-* Calls provider APIs in dependency order to create/update/destroy real resources
+  * (Optionally) refreshes state by querying real infrastructure
 
-* Writes the results into the state file
+  * Computes a diff: what needs to be added, changed, or destroyed
 
-```
-    terraform destroy
-```
+  * Shows you this diff — nothing is changed yet
 
-* Same as apply, but the **"desired state"** is treated as empty — so everything Terraform is tracking gets deleted
+
+
+## terraform apply
+
+
+  * Re-runs the plan (or uses a saved plan file)
+
+  * Asks for confirmation (yes)
+
+  * Calls provider APIs in dependency order to create/update/destroy real resources
+
+  * Writes the results into the state file
+
+
+## terraform destroy
+
+
+  * Same as apply, but the **"desired state"** is treated as empty — so everything Terraform is tracking gets deleted
 
 ### Core commands:
 
