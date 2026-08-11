@@ -298,18 +298,18 @@ The key thing to internalize: Terraform core and providers are separate processe
 
 Every root module needs a required_providers block (inside terraform {}) and, usually, a provider {} block with config:
 
-  terraform {
-    required_providers {
-      aws = {
-        source  = "hashicorp/aws"
-        version = "~> 5.0"
-      }
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
     }
   }
+}
 
-  provider "aws" {
-    region = "ap-south-1"   # Hyderabad-region users often pick ap-south-1 (Mumbai)
-  }
+provider "aws" {
+  region = "ap-south-1"   # Hyderabad-region users often pick ap-south-1 (Mumbai)
+}
 
 
 * **source** is <namespace>/<name> on the Terraform Registry (or a private registry host, e.g. mycompany.com/networking/aws).
