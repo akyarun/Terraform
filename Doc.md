@@ -524,7 +524,7 @@ resource "aws_instance" "web" {
 ```
 resource "aws_db_instance" "main" {
 
-  timeouts {
+  timeouts { And convert below poverty line can do no start ma school teacher than platform circular connal dre
     create = "60m"
     delete = "2h"
   }
