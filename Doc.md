@@ -182,33 +182,7 @@ Important nuance: "cloud-agnostic tool" ≠ "cloud-agnostic infrastructure." Ter
 
 Terraform's architecture is built around a simple loop: you declare what you want → Terraform figures out what needs to change → Terraform calls the right APIs to make it happen → Terraform remembers what it did.
 
-┌─────────────────┐
-│   .tf files      │  ← You write desired state (HCL)
-│  (Configuration)  │
-└────────┬─────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Terraform Core   │  ← Reads config, builds dependency graph,
-│    (the CLI)       │     compares desired vs current state
-└────────┬─────────┘
-         │
-         ├──────────────► reads/writes  ┌──────────────┐
-         │                              │  State file    │  ← Tracks what
-         │                              │ (.tfstate)      │     currently exists
-         │                              └──────────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Providers      │  ← Plugins that translate HCL into API calls
-│ (aws, azurerm...)  │
-└────────┬─────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Real Infrastructure │  ← Actual VMs, networks, DBs on
-│  (AWS/Azure/GCP/...) │     the cloud provider's servers
-└─────────────────┘
+![alt text](image.png)
 
 Four components make this work: 
 **CLI (Core), Providers, Resources, and the State file** . Let's go through each, then go deep on state.
