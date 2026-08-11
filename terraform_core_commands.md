@@ -285,9 +285,8 @@ Reports the error, and you fix the issue and re-run apply — Terraform will onl
 This partial-failure behavior is important: Terraform never silently loses track of real resources it created, even if the overall apply fails.
 
 ## 4. terraform destroy
-What it does internally
 
-destroy is essentially "apply with an empty desired state" — Terraform computes a plan where every resource currently in state gets deleted, then calls the provider APIs to tear them down in reverse dependency order (e.g., delete the EC2 instance before the VPC it lives in).
+What it does internally, destroy is essentially "apply with an empty desired state" — Terraform computes a plan where every resource currently in state gets deleted, then calls the provider APIs to tear them down in reverse dependency order (e.g., delete the EC2 instance before the VPC it lives in).
 
 ```
     $ terraform destroy
@@ -345,6 +344,6 @@ Useful for tearing down one broken/temporary resource without nuking your entire
 
 * Commit .terraform.lock.hcl, never commit .terraform/ or terraform.tfstate (if using local state).
 
-*terraform destroy destroys everything in state — if you only want to remove one resource, either delete its block from code and apply (safer, shows a plan first) or use -target carefully.
+* terraform destroy destroys everything in state — if you only want to remove one resource, either delete its block from code and apply (safer, shows a plan first) or use -target carefully.
 
 * If apply fails partway, don't panic — re-running apply after fixing the issue will pick up where it left off, since state already reflects what succeeded.
