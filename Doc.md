@@ -527,8 +527,8 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
 
 ## What the state file enables:
 
-|------------------------------------------------|----------------------------------------------------|
 |Without state                                   |       	With state                                  |
+|------------------------------------------------|----------------------------------------------------|
 |Terraform doesn't know what already exists	     |  Terraform knows exactly what it manages           |
 |Every apply might try to recreate everything	   |   Only diffs are applied (idempotent)              |
 |No way to map .tf resource → real cloud object  |	 State maps aws_instance.web → i-0a1b2c3d4e5f     |
