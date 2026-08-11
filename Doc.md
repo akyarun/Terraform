@@ -430,15 +430,17 @@ A resource is the actual infrastructure object you want Terraform to create/mana
 
 ### Syntax:
 
+```
   hcl
   resource "<PROVIDER_TYPE>" "<LOCAL_NAME>" {
     argument1 = value1
     argument2 = value2
   }
+```
 
 ### Example — an AWS EC2 instance:
 
-  hcl
+```
   resource "aws_instance" "web" {
     ami           = "ami-0abcdef1234567890"
     instance_type = "t2.micro"
@@ -447,6 +449,7 @@ A resource is the actual infrastructure object you want Terraform to create/mana
       Name = "MyWebServer"
     }
   }
+```
 
 * **aws_instance** → resource type (defined by the AWS provider)
 
@@ -456,7 +459,7 @@ A resource is the actual infrastructure object you want Terraform to create/mana
 
 Example — referencing one resource from another (this is where Terraform's dependency graph shines):
 
-  hcl
+```
   resource "aws_vpc" "main" {
     cidr_block = "10.0.0.0/16"
   }
@@ -465,6 +468,7 @@ Example — referencing one resource from another (this is where Terraform's dep
     vpc_id     = aws_vpc.main.id      # references the VPC created above
     cidr_block = "10.0.1.0/24"
   }
+```
 
 Terraform automatically figures out that aws_subnet.public depends on aws_vpc.main, and creates the VPC first, then the subnet — you don't have to specify order manually. This dependency graph is a key part of why Terraform is declarative rather than imperative.
 
@@ -503,6 +507,7 @@ Real infrastructure (actual)
 
 #### Example — simplified terraform.tfstate content (JSON):
 
+```
   json
   {
     "version": 4,
@@ -525,6 +530,7 @@ Real infrastructure (actual)
       }
     ]
   }
+```
 
 Notice it stores actual real-world values (like id and public_ip) that only exist after creation — your .tf code doesn't know these in advance, but the state file does, once applied.
 
@@ -541,6 +547,7 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
 * State often contains sensitive data (e.g., DB passwords in attributes), so it should never be committed to public Git repos.
 * In teams, state is usually stored remotely (e.g., an S3 bucket + DynamoDB lock table, or Terraform Cloud) instead of a local file, so multiple people don't overwrite each other's state and to avoid "I ran apply on my laptop and now my state is out of sync with everyone else's."
 
+```
   hcl
   terraform {
     backend "s3" {
@@ -550,9 +557,11 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
       dynamodb_table = "terraform-locks"   # prevents concurrent applies
     }
   }
+```
 
 ### Anatomy of a state file
 
+```
   json
   {
     "version": 4,
@@ -588,6 +597,7 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
       }
     ]
   }
+```
 
 #### Key fields explained:
 
@@ -647,7 +657,7 @@ By default, Terraform stores state as a plain file terraform.tfstate in your wor
 
 Remote backends store state in a shared, durable location — an S3 bucket, Azure Storage, GCS bucket, Terraform Cloud, etc.
 
-  hcl
+```
   terraform {
     backend "s3" {
       bucket         = "my-terraform-state-bucket"
@@ -657,6 +667,7 @@ Remote backends store state in a shared, durable location — an S3 bucket, Azur
       encrypt        = true
     }
   }
+```
 
 ### Benefits of remote state:
 
@@ -673,6 +684,7 @@ State Locking
 
 When someone runs **terraform apply**, Terraform **locks the state file** so no one else can run apply/plan (that writes state) concurrently.
 
+```
   $ terraform apply
   Acquiring state lock. This may take a few moments...
 
@@ -686,6 +698,7 @@ If a second person tries to apply at the same time:
     Operation: OperationTypeApply
     Who:       alice@devbox
     Created:   2026-08-10 10:15:32 UTC
+```
 
 This prevents two simultaneous applies from racing and corrupting the state (e.g., both trying to create the same resource, or one overwriting the other's changes).
 
@@ -693,11 +706,13 @@ This prevents two simultaneous applies from racing and corrupting the state (e.g
 
 **Important**: the state file often contains plaintext **sensitive value*s** — **database passwords** set via resource arguments, **private keys**, **connection string** — because Terraform needs to track the actual values it applied.
 
+```
   json
   "attributes": {
     "username": "admin",
     "password": "SuperSecret123!"
   }
+```
 
 #### Because of this:
 
@@ -711,31 +726,32 @@ This prevents two simultaneous applies from racing and corrupting the state (e.g
 
 ### Common State Commands
 
+* **Lists** all resources currently tracked in state.
+ 
   terraform state list
     # aws_instance.web
     # aws_vpc.main
 
-* Lists all resources currently tracked in state.
-
+* Shows detailed attributes of a specific resource from state.
+  
   terraform state show aws_instance.web
 
-* Shows detailed attributes of a specific resource from state.
+* **Renames** a resource in state without destroying/recreating it — useful when refactoring code.
 
   terraform state mv aws_instance.web aws_instance.web_server
 
-* Renames a resource in state without destroying/recreating it — useful when refactoring code.
+* **Removes** a resource from Terraform's tracking without deleting the real resource — Terraform "forgets" about it, but it still exists in AWS.
 
   terraform state rm aws_instance.web
 
-* Removes a resource from Terraform's tracking without deleting the real resource — Terraform "forgets" about it, but it still exists in AWS.
+* **Imports** an existing, manually-created resource into Terraform state, so Terraform can start managing something that wasn't originally created by Terraform.
 
   terraform import aws_instance.web i-0a1b2c3d4e5f
 
-* Imports an existing, manually-created resource into Terraform state, so Terraform can start managing something that wasn't originally created by Terraform.
-
+* (Now largely folded into plan/apply) Reconciles state with real infrastructure without changing anything — pulls in the latest real-world attribute values.
+  
   terraform refresh
 
-(Now largely folded into plan/apply) Reconciles state with real infrastructure without changing anything — pulls in the latest real-world attribute values.
 
 ## Drift Detection in Action
 
@@ -743,7 +759,7 @@ If someone manually changes something in the AWS console (e.g., resizes an insta
 
 Say someone manually changes the instance type in the AWS console from t2.micro to t2.large, bypassing Terraform entirely.
 
-
+```
   $ terraform plan
       aws_instance.web: Refreshing state... [id=i-0a1b2c3d4e5f]
 
@@ -759,6 +775,7 @@ Say someone manually changes the instance type in the AWS console from t2.micro 
         ~ instance_type = "t2.large" -> "t2.micro"   # to match your code
 
       Plan: 0 to add, 1 to change, 0 to destroy.
+```
 
 Terraform shows you the drift and, since your .tf code still says t2.micro, it will plan to revert it back to match your code on the next apply — unless you update your code to match the new reality instead.
 
