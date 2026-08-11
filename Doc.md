@@ -729,8 +729,8 @@ This prevents two simultaneous applies from racing and corrupting the state (e.g
 * **Lists** all resources currently tracked in state.
  
   terraform state list
-    # aws_instance.web
-    # aws_vpc.main
+    #aws_instance.web
+    #aws_vpc.main
 
 * Shows detailed attributes of a specific resource from state.
   
