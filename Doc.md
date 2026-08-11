@@ -431,6 +431,8 @@ A resource block is the core unit of Terraform — it's the declaration that say
 
 Let's go through everything about it.
 
+![alt text](image-2.png)
+
 #### Anatomy of the block
 
 ```
@@ -822,7 +824,7 @@ Terraform shows you the drift and, since your .tf code still says t2.micro, it w
 
 Two common patterns to avoid one giant, risky state file:
 
-**Workspaces** — same code, multiple isolated states (e.g., dev/staging/prod):
+**1.Workspaces** — same code, multiple isolated states (e.g., dev/staging/prod):
 
   terraform workspace new dev
 
@@ -832,7 +834,7 @@ Two common patterns to avoid one giant, risky state file:
 
 Each workspace gets its own state, so apply in dev never touches prod resources.
 
-**Splitting state by component** — e.g., separate state files for network/, database/, compute/ — so a mistake in one area has a smaller blast radius, and teams can own different parts independently. Data is shared between them using terraform_remote_state data sources or outputs.
+**2.Splitting state by component** — e.g., separate state files for network/, database/, compute/ — so a mistake in one area has a smaller blast radius, and teams can own different parts independently. Data is shared between them using terraform_remote_state data sources or outputs.
 
 State is what turns Terraform from "a script that creates things" into "a system that maintains a living, accurate model of your infrastructure over time."
 
