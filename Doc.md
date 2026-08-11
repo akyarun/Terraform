@@ -226,7 +226,6 @@ Core commands and what happens internally:
 
 ## terraform apply
 
-
   * Re-runs the plan (or uses a saved plan file)
 
   * Asks for confirmation (yes)

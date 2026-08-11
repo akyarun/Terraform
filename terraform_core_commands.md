@@ -1,55 +1,63 @@
 # Terraform Core Commands
+
 ◦terraform init
+
 ◦terraform plan
+
 ◦terraform apply
+
 ◦terraform destroy
 
----------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
 
 These four commands are the entire lifecycle of working with Terraform. Let's go through each one deeply — what it does internally, common flags, real output, and gotchas.
 
 terraform init  →  terraform plan  →  terraform apply  →  (infrastructure runs)  →  terraform destroy
      (setup)          (preview)           (execute)                                    (teardown)
-Setup: A working example
+
+
+**Setup: A working example**
 
 Let's use this config throughout (main.tf):
 
-hcl
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+```
+    terraform {
+    required_providers {
+        aws = {
+        source  = "hashicorp/aws"
+        version = "~> 5.0"
+        }
     }
-  }
-}
+    }
 
-provider "aws" {
-  region = "ap-south-1"
-}
+    provider "aws" {
+    region = "ap-south-1"
+    }
 
-resource "aws_instance" "web" {
-  ami           = "ami-0abcdef1234567890"
-  instance_type = "t2.micro"
+    resource "aws_instance" "web" {
+    ami           = "ami-0abcdef1234567890"
+    instance_type = "t2.micro"
 
-  tags = {
-    Name = "MyWebServer"
-  }
-}
+    tags = {
+        Name = "MyWebServer"
+    }
+    }
 
-output "instance_public_ip" {
-  value = aws_instance.web.public_ip
-}
-1. terraform init
-What it does internally
+    output "instance_public_ip" {
+    value = aws_instance.web.public_ip
+    }
+```
 
-init prepares your working directory to run Terraform. It's the first command you always run in a new or cloned project. It performs three jobs:
+**1. terraform init**
+
+What it does internally, init prepares your working directory to run Terraform. It's the first command you always run in a new or cloned project. It performs three jobs:
 
 Downloads providers — reads required_providers and downloads the matching plugin binaries into a hidden .terraform/ folder
 Initializes the backend — sets up where state will be stored (local by default, or remote like S3 if configured)
 Downloads modules — if your config references any module blocks, it fetches that code too
 Running it
-bash
+
+```
 $ terraform init
 
 Initializing the backend...
@@ -58,10 +66,10 @@ Initializing provider plugins...
 - Finding hashicorp/aws versions matching "~> 5.0"...
 - Installing hashicorp/aws v5.40.0...
 - Installed hashicorp/aws v5.40.0 (signed by HashiCorp)
+```
 
-Terraform has created a lock file .terraform.lock.hcl to record the provider
-selections it made above. Include this file in your version control repository
-so that Terraform can guarantee to make the same selections by default when
+Terraform has created a lock file .terraform.lock.hcl to record the provider selections it made above. Include this file in your version control repository so that Terraform can guarantee to make the same selections by default when
+
 you run "terraform init" in the future.
 
 Terraform has been successfully initialized!
@@ -69,40 +77,50 @@ Terraform has been successfully initialized!
 You may now begin working with Terraform. Try running "terraform plan" to see
 any changes that are required for your infrastructure.
 What gets created
-.
-├── main.tf
-├── .terraform/                  ← downloaded provider binaries live here
-│   └── providers/
-├── .terraform.lock.hcl          ← locks exact provider versions (commit this to Git!)
-Key flags
-Flag	Purpose
-terraform init -upgrade	Upgrades providers/modules to the latest allowed version
-terraform init -reconfigure	Reconfigures backend, ignoring any existing config
-terraform init -backend=false	Skips backend init (useful for quick local testing)
-terraform init -migrate-state	Migrates state when you change backend config
-When to re-run init
-First time cloning/starting a project
-After adding/changing a required_providers block
-After changing the backend block
-After adding a new module source
-Gotchas
+
+    .
+    ├── main.tf
+    ├── .terraform/                  ← downloaded provider binaries live here
+    │   └── providers/
+    ├── .terraform.lock.hcl          ← locks exact provider versions (commit this to Git!)
+
+**Key flags**
+
+|Flag	                            |            Purpose                                        |
+|-----------------------------------|-----------------------------------------------------------|
+|terraform init -upgrade	        | Upgrades providers/modules to the latest allowed version  |   
+|terraform init -reconfigure	    | Reconfigures backend, ignoring any existing config        |
+|terraform init -backend=false	    | Skips backend init (useful for quick local testing)       |
+|terraform init -migrate-state	    | Migrates state when you change backend config             |
+
+**When to re-run init**
+
+    * First time cloning/starting a project
+
+    * After adding/changing a required_providers block
+
+    * After changing the backend block
+
+    * After adding a new module source
+
+**Key points:**
 .terraform/ should never be committed to Git (add to .gitignore) — it's regenerated by init
 .terraform.lock.hcl should be committed — it ensures everyone on the team gets identical provider versions
-2. terraform plan
-What it does internally
 
-plan is a dry run. It:
+**2. terraform plan**
 
-Reads your .tf configuration (desired state)
-Reads the current state file (last known state)
-Optionally refreshes — queries real infrastructure via the provider to check for drift
-Computes the difference and shows you exactly what would happen — without changing anything
+What it does internally, plan is a dry run. It:
+
+    * Reads your .tf configuration (desired state)
+    * Reads the current state file (last known state)
+    * Optionally refreshes — queries real infrastructure via the provider to check for drift
+    * Computes the difference and shows you exactly what would happen — without changing anything
 
 This is Terraform's core safety mechanism — you always know what's about to happen before it happens.
 
-Running it
-bash
+```
 $ terraform plan
+```
 
 Terraform used the selected providers to generate the following execution plan.
 Resource actions are indicated with the following symbols:
@@ -110,7 +128,7 @@ Resource actions are indicated with the following symbols:
 
 Terraform will perform the following actions:
 
-  # aws_instance.web will be created
+  ##### aws_instance.web will be created
   + resource "aws_instance" "web" {
       + ami                          = "ami-0abcdef1234567890"
       + instance_type                = "t2.micro"
@@ -139,7 +157,7 @@ Symbol	Meaning
 -/+	Resource will be destroyed and recreated (can't be updated in-place)
 (known after apply)	Value doesn't exist yet — cloud provider assigns it during creation
 Example — an update plan (after changing instance_type to t2.small)
-  # aws_instance.web will be updated in-place
+  #### aws_instance.web will be updated in-place
   ~ resource "aws_instance" "web" {
         id            = "i-0a1b2c3d4e5f"
       ~ instance_type = "t2.micro" -> "t2.small"
@@ -148,7 +166,7 @@ Example — an update plan (after changing instance_type to t2.small)
 
 Plan: 0 to add, 1 to change, 0 to destroy.
 Example — a destroy-and-recreate plan (changing ami, which forces replacement)
-  # aws_instance.web must be replaced
+  #### aws_instance.web must be replaced
 -/+ resource "aws_instance" "web" {
       ~ ami           = "ami-0abcdef1234567890" -> "ami-0newimage9876543"  # forces replacement
       ~ id            = "i-0a1b2c3d4e5f" -> (known after apply)
@@ -159,38 +177,41 @@ Plan: 1 to add, 0 to change, 1 to destroy.
 
 Terraform tells you why — # forces replacement — some attributes can't be changed in-place (like AMI) and require full destroy+recreate.
 
-Key flags
-Flag	Purpose
-terraform plan -out=tfplan	Saves the plan to a file, to be applied exactly later (recommended for CI/CD)
-terraform plan -var="instance_type=t2.small"	Overrides a variable value for this run
-terraform plan -var-file="prod.tfvars"	Loads variables from a file
-terraform plan -target=aws_instance.web	Only plans for a specific resource (use sparingly — can hide dependency issues)
-terraform plan -destroy	Previews what a destroy would do, without saving/applying
-terraform plan -refresh=false	Skips querying real infra state (faster, but misses drift)
-Best practice: saved plans in CI/CD
-bash
+**Key flags**
+|Flag	                            |            Purpose                                        |
+|-----------------------------------|-----------------------------------------------------------|
+|terraform plan -out=tfplan	            |Saves the plan to a file, to be applied exactly later (recommended for CI/CD)  |
+|terraform plan -var="instance_type=t2.small"   |	Overrides a variable value for this run     |
+|terraform plan -var-file="prod.tfvars"	    |   Loads variables from a file |
+|terraform plan -target=aws_instance.web	|   Only plans for a specific resource (use sparingly — can hide dependency issues) |
+|terraform plan -destroy	                |Previews what a destroy would do, without saving/applying  |
+|terraform plan -refresh=false	            |Skips querying real infra state (faster, but misses drift) |
+
+### Best practice: saved plans in CI/CD
+```
 terraform plan -out=tfplan
-# review tfplan, get approval
+    # review tfplan, get approval
 terraform apply tfplan     # applies EXACTLY what was reviewed — no surprises
+```
 
 This is safer than running plan then apply separately, because between those two commands, nothing could have changed the underlying infrastructure or your variables.
 
-3. terraform apply
-What it does internally
+**3. terraform apply**
 
-apply executes the plan against real infrastructure:
+What it does internally, apply executes the plan against real infrastructure:
 
-Computes the plan (same as plan, unless you pass a saved plan file)
-Shows you the plan and asks for confirmation
-Calls the provider's API to create/update/destroy resources, in dependency order
-Writes results into the state file as each resource completes
-Running it (interactive)
-bash
+    * Computes the plan (same as plan, unless you pass a saved plan file)
+    * Shows you the plan and asks for confirmation
+    * Calls the provider's API to create/update/destroy resources, in dependency order
+    * Writes results into the state file as each resource completes
+
+```
 $ terraform apply
+```
 
 Terraform will perform the following actions:
 
-  # aws_instance.web will be created
+  ##### aws_instance.web will be created
   + resource "aws_instance" "web" {
       + ami           = "ami-0abcdef1234567890"
       + instance_type = "t2.micro"
@@ -216,14 +237,16 @@ Outputs:
 
 instance_public_ip = "13.234.56.78"
 
-Notice:
+**Notice:**
 
-You must type yes — no shortcuts (this is intentional friction, to avoid accidental applies)
-Terraform shows real-time progress for long-running resources
-After completion, Outputs: shows the values you exposed via output blocks
-Applying a saved plan (no prompt, since it was already reviewed)
-bash
+    * You must type yes — no shortcuts (this is intentional friction, to avoid accidental applies)
+    * Terraform shows real-time progress for long-running resources
+    * After completion, Outputs: shows the values you exposed via output blocks
+    * Applying a saved plan (no prompt, since it was already reviewed)
+
+```
 $ terraform apply tfplan
+```
 aws_instance.web: Creating...
 aws_instance.web: Creation complete after 32s [id=i-0a1b2c3d4e5f]
 
@@ -231,13 +254,16 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 
 No yes prompt needed here — you already reviewed and approved this exact plan file.
 
-Key flags
-Flag	Purpose
-terraform apply -auto-approve	Skips the yes confirmation (dangerous for prod; common in CI pipelines with their own approval gates)
-terraform apply -var="instance_type=t2.small"	Overrides variables
-terraform apply -target=aws_instance.web	Applies only a specific resource (use with caution)
-terraform apply tfplan	Applies a previously saved plan file exactly
-terraform apply -parallelism=5	Limits how many resources are created/destroyed concurrently (default 10)
+**Key flags**
+|Flag	                            |            Purpose                                        |
+|-----------------------------------|-----------------------------------------------------------|
+|terraform apply -auto-approve	|Skips the yes confirmation (dangerous for prod; common in CI pipelines with their own approval gates)|
+|terraform apply -var="instance_type=t2.small"	|Overrides variables|
+|terraform apply -target=aws_instance.web	|Applies only a specific resource (use with caution)|
+|terraform apply tfplan	|Applies a previously saved plan file exactly|
+|terraform apply -parallelism=5	|Limits how many resources are created/destroyed concurrently (default 10)|
+
+
 What happens on error mid-apply
 
 If resource #3 out of 5 fails to create, Terraform:
@@ -252,18 +278,18 @@ Error: Error creating instance: InsufficientInstanceCapacity
 
 This partial-failure behavior is important: Terraform never silently loses track of real resources it created, even if the overall apply fails.
 
-4. terraform destroy
+**4. terraform destroy**
 What it does internally
 
 destroy is essentially "apply with an empty desired state" — Terraform computes a plan where every resource currently in state gets deleted, then calls the provider APIs to tear them down in reverse dependency order (e.g., delete the EC2 instance before the VPC it lives in).
 
-Running it
-bash
+```
 $ terraform destroy
+```
 
 Terraform will perform the following actions:
 
-  # aws_instance.web will be destroyed
+  ##### aws_instance.web will be destroyed
   - resource "aws_instance" "web" {
       - ami           = "ami-0abcdef1234567890" -> null
       - id            = "i-0a1b2c3d4e5f" -> null
@@ -286,48 +312,24 @@ Destroy complete! Resources: 1 destroyed.
 
 Warning wording is deliberately stronger ("There is no undo") — this command deletes real infrastructure permanently.
 
-Key flags
-Flag	Purpose
-terraform destroy -target=aws_instance.web	Destroys only a specific resource (rest of infra untouched)
-terraform destroy -auto-approve	Skips confirmation (use very carefully)
-terraform plan -destroy	Preview a destroy without actually running it
+**Key flags**
+|Flag	                            |            Purpose                                        |
+|-----------------------------------|-----------------------------------------------------------|
+|terraform destroy -target=aws_instance.web	|Destroys only a specific resource (rest of infra untouched)|
+|terraform destroy -auto-approve	|Skips confirmation (use very carefully)|
+|terraform plan -destroy	|Preview a destroy without actually running it|
+
 When you'd use -target for partial destroy
-bash
+
+```
 terraform destroy -target=aws_instance.web
+```
 
 Useful for tearing down one broken/temporary resource without nuking your entire environment — but use sparingly, since it can leave your state and dependency graph in an inconsistent in-between condition if overused.
 
-Full End-to-End Walkthrough (all four together)
-bash
-# 1. Set up working directory, download AWS provider
-$ terraform init
 
-# 2. Preview what will be created
-$ terraform plan -out=tfplan
+### Practical Tips / Common Mistakes
 
-# 3. Review the plan output, then apply exactly that plan
-$ terraform apply tfplan
-# ... instance created, state file written ...
-
-# 4. (later) Someone updates instance_type in main.tf to t2.small
-$ terraform plan
-# Shows: ~ instance_type = "t2.micro" -> "t2.small"
-
-$ terraform apply
-# Enter a value: yes
-# ... instance resized in-place ...
-
-# 5. Done with this environment — tear it all down
-$ terraform destroy
-# Enter a value: yes
-# ... instance destroyed, state file now empty ...
-Command Comparison Table
-Command	Changes real infra?	Needs confirmation?	Reads state?	Writes state?
-init	No	No	No	No (creates .terraform/ only)
-plan	No	No	Yes	No
-apply	Yes	Yes (unless -auto-approve or applying saved plan)	Yes	Yes
-destroy	Yes (deletes)	Yes	Yes	Yes (empties state)
-Practical Tips / Common Mistakes
 Always run plan before apply in real projects — don't skip straight to apply blind, even though apply shows you the same plan first.
 Use -out + saved plan files in CI/CD — separates "review" from "execute" so nothing changes in between.
 Never -auto-approve on production without a separate manual approval gate (e.g., a pipeline approval step) — the confirmation prompt exists for a reason.
