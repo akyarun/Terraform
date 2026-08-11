@@ -788,3 +788,196 @@ Each workspace gets its own state, so apply in dev never touches prod resources.
 State is what turns Terraform from "a script that creates things" into "a system that maintains a living, accurate model of your infrastructure over time."
 
 Run terraform init (downloads AWS provider) → terraform plan (shows it will create 1 instance) → terraform apply (creates it, records details in terraform.tfstate) → run terraform plan again later and Terraform compares your code + state + real AWS to tell you if anything drifted.
+
+## What goes in .tf configuration files?
+
+.tf files are where you write your Terraform configuration in HCL (HashiCorp Configuration Language). A handful of block types cover almost everything you'll ever write.
+
+### The core block types
+
+**terraform block** — meta-configuration for Terraform itself: required provider versions, the required Terraform CLI version, and backend configuration (where state is stored).
+
+```
+terraform {
+  required_version = ">= 1.7.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+  backend "s3" {
+    bucket = "my-tfstate"
+    key    = "prod/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+```
+
+**provider block** — configures a provider instance (covered in depth above).
+
+**resource block** — the main event. Declares an infrastructure object Terraform should create, update, and destroy. Syntax is resource "<type>" "<local_name>" { ... }.
+
+```
+resource "aws_instance" "web" {
+  ami           = "ami-0abcdef1234567890"
+  instance_type = "t3.micro"
+
+  tags = {
+    Name = "web-server"
+  }
+}
+```
+
+**data block** — a read-only lookup of something that already exists (an AMI, an existing VPC, a DNS zone) so you can reference it without managing it.
+
+```
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"]
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/*22.04*"]
+  }
+```
+
+**variable block** — declares an input parameter for the module, optionally with a type, default, and validation rules.
+
+```
+variable "instance_type" {
+  type        = string
+  default     = "t3.micro"
+  description = "EC2 instance size"
+}
+```
+
+**output block** — exposes a value from this module to whoever calls it (a parent module, or the CLI after apply).
+
+```
+output "instance_ip" {
+  value = aws_instance.web.public_ip
+}
+```
+
+**locals block** — named expressions for reuse within the module; not inputs, not outputs, just internal convenience values.
+
+```
+locals {
+  name_prefix = "${var.environment}-${var.project}"
+}
+```
+
+**module block** — calls another module (local or remote), passing variables in and reading outputs out.
+
+```
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.8.1"
+  cidr    = "10.0.0.0/16"
+}
+```
+
+### How references work between blocks
+
+Everything lives in one implicit namespace per module, so you reference things by type and name:
+
+* **Resource attribute**: aws_instance.web.public_ip
+* **Data source attribute**: data.aws_ami.ubuntu.id
+* **Variable**: var.instance_type
+* **Local**: local.name_prefix
+* **Module output**: module.vpc.vpc_id
+
+Terraform builds a dependency graph from these references automatically — you rarely need explicit **depends_on** unless a dependency isn't visible through an attribute reference (e.g. IAM eventual consistency).
+
+### **depends_on:**
+Let me break this into two parts: how **implicit dependencies** work, and a concrete case where they fail and you need **depends_on**.
+
+Implicit dependencies: via attribute references
+
+When one resource's argument references another resource's attribute, Terraform sees that reference in the configuration and knows it must create/update the referenced resource before the one that depends on it.
+
+```
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "web" {
+  vpc_id     = aws_vpc.main.id      # <- reference
+  cidr_block = "10.0.1.0/24"
+}
+
+resource "aws_instance" "app" {
+  subnet_id = aws_subnet.web.id     # <- reference
+  ami       = "ami-0abcdef1234567890"
+  instance_type = "t3.micro"
+}
+```
+
+Terraform parses the config, sees aws_subnet.web uses aws_vpc.main.id, and aws_instance.app uses aws_subnet.web.id. It builds this graph automatically:
+
+No depends_on needed anywhere here — the graph came entirely from the id references.
+
+When the graph can't see the dependency
+
+Terraform only knows about relationships that show up as expressions in the config. If resource B depends on resource A being fully ready, but B's arguments don't reference any of A's attributes, Terraform has no way to know — and may try to create both in parallel, or in the wrong order.
+
+The classic example is IAM eventual consistency on AWS. Say you create an IAM role and then a Lambda function that assumes it:
+
+```
+resource "aws_iam_role" "lambda_exec" {
+  name               = "lambda-exec-role"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_lambda_function" "app" {
+  function_name = "my-app"
+  role          = aws_iam_role.lambda_exec.arn   # <- this reference IS captured
+  # ...
+}
+```
+
+Here aws_lambda_function.app does reference aws_iam_role.lambda_exec.arn, so Terraform correctly orders role creation before the Lambda. So far so good — but this is exactly where the hidden problem lives: AWS's IAM API can return "success" before the role has actually propagated to every region/service that needs to see it. Terraform's graph says "role created, safe to proceed," fires the CreateFunction call immediately, and AWS sometimes rejects it with InvalidParameterValueException: The role defined for the function cannot be assumed by Lambda — even though the reference-based ordering was technically correct. The dependency existed in the graph; the problem is timing after creation, not ordering, and no attribute reference can express "and then wait a bit."
+
+A cleaner example of truly invisible dependencies — no attribute reference at all — is something like a resource that needs an S3 bucket policy to exist first, but only reads from a bucket name string you typed manually instead of referencing the resource:
+
+```
+resource "aws_s3_bucket_policy" "logs" {
+  bucket = "my-central-logs-bucket"
+  policy = data.aws_iam_policy_document.allow_write.json
+}
+
+resource "aws_cloudtrail" "main" {
+  name           = "org-trail"
+  s3_bucket_name = "my-central-logs-bucket"   # hardcoded string, not a reference!
+
+  depends_on = [aws_s3_bucket_policy.logs]     # <- must be explicit
+}
+```
+
+Because s3_bucket_name is a literal string rather than aws_s3_bucket.logs.bucket, Terraform's graph builder sees zero connection between these two resources. Without depends_on, it might create the CloudTrail trail before the bucket policy exists, and AWS rejects it because CloudTrail can't yet write to that bucket.
+
+The rule of thumb
+
+* Prefer references over hardcoded values wherever possible — aws_s3_bucket.logs.bucket instead of a string literal — because that's what actually builds the graph edge, not just documentation.
+
+* Reach for depends_on only when: (a) there's a real ordering dependency, (b) it isn't expressible through an attribute reference, and (c) you can't fix it by just referencing the resource properly instead.
+
+* depends_on takes a list of resource/module references, and forces strict ordering without needing to actually use any of the dependency's output values.
+
+### File organization is a convention, not a rule
+
+Terraform loads every .tf file in a directory as one combined configuration — file names don't matter to the engine. The common convention (used by most teams and by terraform-docs/module generators) is:
+
+* **main.tf** — providers and primary resources
+* **variables.tf** — all variable blocks
+* **outputs.tf** — all output blocks
+* **versions.tf** — the terraform block with version constraints
+* **locals.tf** — locals block, if large enough to warrant its own file
+
+You could put everything in one giant file and it'd work identically — the split exists purely for human readability.
+
