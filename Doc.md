@@ -84,13 +84,13 @@ You don't say how — you say what. The tool (e.g., Terraform) compares the desi
 
 Terraform is declarative.
 
-Aspect	                    Imperative	                     Declarative
---------------------------------------------------------------------------------------------------------------
-You define	                 Steps to execute	            Desired end state
-Order matters?	                Yes, strictly	            Tool figures out order (dependency graph)
-Re-running same code	May cause errors/duplicates	        Safe — tool only makes needed changes (idempotent)
-Example tools	        Bash scripts, Ansible playbooks	    Terraform, CloudFormation
-Mental model	        "Do this, then this, then this"	    "Make it look like this"
+| Aspect	            |        Imperative	              |        Declarative
+|---------------------|-------------------------------- |------------------------|
+|You define	          |      Steps to execute	          |   Desired end state                               |
+|Order matters?	      |         Yes, strictly	          |   Tool figures out order (dependency graph)       |
+|Re-running same code	| May cause errors/duplicates	    | Safe — tool only makes needed changes (idempotent)| 
+|Example tools	      | Bash scripts, Ansible playbooks | Terraform, CloudFormation                         |
+|Mental model	        | "Do this, then this, then this"	|   "Make it look like this"                       |  
 
 ### Why declarative matters in practice: 
 
@@ -138,15 +138,15 @@ Terraform keeps track of everything it manages in a state file, which acts as it
 
 Terraform is built and maintained by HashiCorp, a company known for a suite of DevOps/infrastructure tools:
 
-**Terraform** — infrastructure provisioning
+  **Terraform** — infrastructure provisioning
 
-**Vault** — secrets management
+  **Vault** — secrets management
 
-**Consul** — service networking/discovery
+  **Consul** — service networking/discovery
 
-**Nomad** — workload orchestration
+  **Nomad** — workload orchestration
 
-**Packer** — machine image building
+  **Packer** — machine image building
 
 Terraform is written in Go and uses HCL (HashiCorp Configuration Language) — a language designed to be both human-readable and machine-friendly, striking a balance between JSON's machine-parsability and a more approachable syntax for humans.
 
