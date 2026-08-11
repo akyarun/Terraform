@@ -479,7 +479,7 @@ These aren't provider-specific; every resource block supports them regardless of
   }
 ```
 
-#addresses: aws_instance.web[0], web[1], web[2]
+    addresses: aws_instance.web[0], web[1], web[2]
 
 **for_each** — creates one instance per key in a map or set, addressed by key instead of index. Preferred over count when items might be added/removed from the middle of a list, since count reindexes everything and can cause unwanted destroy/recreate cascades.
 
@@ -491,7 +491,7 @@ resource "aws_instance" "web" {
 }
 ```
 
-#addresses: aws_instance.web["small"], web["large"]
+    addresses: aws_instance.web["small"], web["large"]
 
 **provider** — selects a specific aliased provider configuration (shown in the earlier multi-region example).
 
@@ -499,8 +499,9 @@ resource "aws_instance" "web" {
 
 **lifecycle block** — customizes how Terraform handles changes:
 
+```
 resource "aws_instance" "web" {
-  # ...
+
   lifecycle {
     create_before_destroy = true
     prevent_destroy        = true
@@ -508,6 +509,7 @@ resource "aws_instance" "web" {
     replace_triggered_by    = [aws_launch_template.web.id]
   }
 }
+```
 
 * create_before_destroy — for replacements, build the new resource before tearing down the old one (avoids downtime; needed anywhere else references this resource, like a load balancer target).
 
@@ -519,13 +521,15 @@ resource "aws_instance" "web" {
 
 **timeouts block** — some resource types let you override how long Terraform waits for an operation before giving up:
 
+```
 resource "aws_db_instance" "main" {
-  # ...
+
   timeouts {
     create = "60m"
     delete = "2h"
   }
 }
+```
 
 **Provisioners** (local-exec, remote-exec) — run scripts on create/destroy as a last resort, when there's genuinely no API-native way to configure something. HashiCorp explicitly discourages these as a first choice, since they're invisible to plan's diff and fragile compared to native resource attributes or purpose-built tools like cloud-init/Ansible.
 
