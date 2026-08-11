@@ -405,7 +405,6 @@ You then implement the provider.Provider interface (Metadata, Schema, Configure,
 
 Local development loop:
 
-    hcl
     # ~/.terraformrc
     provider_installation {
       dev_overrides {
@@ -434,7 +433,7 @@ Let's go through everything about it.
 
 #### Anatomy of the block
 
-```hcl```
+```
 resource "aws_instance" "web" {
   ami           = "ami-0abcdef1234567890"
   instance_type = "t3.micro"
@@ -443,7 +442,7 @@ resource "aws_instance" "web" {
     Name = "web-server"
   }
 }
-```hcl```
+```
 
 **"aws_instance"** — the resource type. The prefix (aws_) determines which provider owns it.
 **"web"** — the local name, unique within the module. Together, aws_instance.web is the resource's address.
@@ -470,25 +469,21 @@ These aren't provider-specific; every resource block supports them regardless of
 
 **count** — creates N instances from one block, indexed [0], [1], etc.
 
-```hcl```
 resource "aws_instance" "web" {
   count         = 3
   ami           = "ami-0abcdef1234567890"
   instance_type = "t3.micro"
 }
-```hcl```
 
 # addresses: aws_instance.web[0], web[1], web[2]
 
 **for_each** — creates one instance per key in a map or set, addressed by key instead of index. Preferred over count when items might be added/removed from the middle of a list, since count reindexes everything and can cause unwanted destroy/recreate cascades.
 
-```hcl```
 resource "aws_instance" "web" {
   for_each      = { small = "t3.micro", large = "t3.large" }
   ami           = "ami-0abcdef1234567890"
   instance_type = each.value
 }
-```hcl```
 
 # addresses: aws_instance.web["small"], web["large"]
 
@@ -498,7 +493,6 @@ resource "aws_instance" "web" {
 
 **lifecycle block** — customizes how Terraform handles changes:
 
-```hcl```
 resource "aws_instance" "web" {
   # ...
   lifecycle {
@@ -508,7 +502,6 @@ resource "aws_instance" "web" {
     replace_triggered_by    = [aws_launch_template.web.id]
   }
 }
-```hcl```
 
 * create_before_destroy — for replacements, build the new resource before tearing down the old one (avoids downtime; needed anywhere else references this resource, like a load balancer target).
 
@@ -520,7 +513,6 @@ resource "aws_instance" "web" {
 
 **timeouts block** — some resource types let you override how long Terraform waits for an operation before giving up:
 
-```hcl```
 resource "aws_db_instance" "main" {
   # ...
   timeouts {
@@ -528,7 +520,6 @@ resource "aws_db_instance" "main" {
     delete = "2h"
   }
 }
-```hcl```
 
 **Provisioners** (local-exec, remote-exec) — run scripts on create/destroy as a last resort, when there's genuinely no API-native way to configure something. HashiCorp explicitly discourages these as a first choice, since they're invisible to plan's diff and fragile compared to native resource attributes or purpose-built tools like cloud-init/Ansible.
 
@@ -559,7 +550,6 @@ Every terraform plan involves comparing three things, not two:
 #### Example — simplified terraform.tfstate content (JSON):
 
 ```
-  json
   {
     "version": 4,
     "terraform_version": "1.7.0",
@@ -600,7 +590,6 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
 * In teams, state is usually stored remotely (e.g., an S3 bucket + DynamoDB lock table, or Terraform Cloud) instead of a local file, so multiple people don't overwrite each other's state and to avoid "I ran apply on my laptop and now my state is out of sync with everyone else's."
 
 ```
-  hcl
   terraform {
     backend "s3" {
       bucket = "my-terraform-state-bucket"
@@ -614,7 +603,6 @@ Notice it stores actual real-world values (like id and public_ip) that only exis
 ### Anatomy of a state file
 
 ```
-  json
   {
     "version": 4,
     "terraform_version": "1.7.0",
@@ -759,7 +747,6 @@ This prevents two simultaneous applies from racing and corrupting the state (e.g
 **Important**: the state file often contains plaintext **sensitive value*s** — **database passwords** set via resource arguments, **private keys**, **connection string** — because Terraform needs to track the actual values it applied.
 
 ```
-  json
   "attributes": {
     "username": "admin",
     "password": "SuperSecret123!"
