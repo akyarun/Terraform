@@ -822,15 +822,17 @@ Terraform shows you the drift and, since your .tf code still says t2.micro, it w
 
 Two common patterns to avoid one giant, risky state file:
 
-1. **Workspaces** — same code, multiple isolated states (e.g., dev/staging/prod):
+**Workspaces** — same code, multiple isolated states (e.g., dev/staging/prod):
 
   terraform workspace new dev
+
   terraform workspace new prod
+  
   terraform workspace select dev
 
 Each workspace gets its own state, so apply in dev never touches prod resources.
 
-2. **Splitting state by component** — e.g., separate state files for network/, database/, compute/ — so a mistake in one area has a smaller blast radius, and teams can own different parts independently. Data is shared between them using terraform_remote_state data sources or outputs.
+**Splitting state by component** — e.g., separate state files for network/, database/, compute/ — so a mistake in one area has a smaller blast radius, and teams can own different parts independently. Data is shared between them using terraform_remote_state data sources or outputs.
 
 State is what turns Terraform from "a script that creates things" into "a system that maintains a living, accurate model of your infrastructure over time."
 
@@ -842,7 +844,7 @@ Run terraform init (downloads AWS provider) → terraform plan (shows it will cr
 
 ### The core block types
 
-**terraform block** — meta-configuration for Terraform itself: required provider versions, the required Terraform CLI version, and backend configuration (where state is stored).
+* **terraform block** — meta-configuration for Terraform itself: required provider versions, the required Terraform CLI version, and backend configuration (where state is stored).
 
 ```
 terraform {
@@ -861,9 +863,9 @@ terraform {
 }
 ```
 
-**provider block** — configures a provider instance (covered in depth above).
+* **provider block** — configures a provider instance (covered in depth above).
 
-**resource block** — the main event. Declares an infrastructure object Terraform should create, update, and destroy. Syntax is resource "<type>" "<local_name>" { ... }.
+* **resource block** — the main event. Declares an infrastructure object Terraform should create, update, and destroy. Syntax is resource "<type>" "<local_name>" { ... }.
 
 ```
 resource "aws_instance" "web" {
@@ -876,7 +878,7 @@ resource "aws_instance" "web" {
 }
 ```
 
-**data block** — a read-only lookup of something that already exists (an AMI, an existing VPC, a DNS zone) so you can reference it without managing it.
+* **data block** — a read-only lookup of something that already exists (an AMI, an existing VPC, a DNS zone) so you can reference it without managing it.
 
 ```
 data "aws_ami" "ubuntu" {
@@ -888,7 +890,7 @@ data "aws_ami" "ubuntu" {
   }
 ```
 
-**variable block** — declares an input parameter for the module, optionally with a type, default, and validation rules.
+* **variable block** — declares an input parameter for the module, optionally with a type, default, and validation rules.
 
 ```
 variable "instance_type" {
@@ -898,7 +900,7 @@ variable "instance_type" {
 }
 ```
 
-**output block** — exposes a value from this module to whoever calls it (a parent module, or the CLI after apply).
+* **output block** — exposes a value from this module to whoever calls it (a parent module, or the CLI after apply).
 
 ```
 output "instance_ip" {
@@ -906,7 +908,7 @@ output "instance_ip" {
 }
 ```
 
-**locals block** — named expressions for reuse within the module; not inputs, not outputs, just internal convenience values.
+* **locals block** — named expressions for reuse within the module; not inputs, not outputs, just internal convenience values.
 
 ```
 locals {
@@ -914,7 +916,7 @@ locals {
 }
 ```
 
-**module block** — calls another module (local or remote), passing variables in and reading outputs out.
+* **module block** — calls another module (local or remote), passing variables in and reading outputs out.
 
 ```
 module "vpc" {
