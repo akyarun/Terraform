@@ -3,13 +3,14 @@
 GitHub Actions is a very natural fit for Terraform since your code likely already lives in GitHub — you get triggers, secrets management, and PR integration all built into the same platform, no separate CI server to run.
 
 ## Why GitHub Actions for Terraform?
-Aspect	Benefit
-Native to GitHub	No separate server to maintain (unlike Jenkins)
-YAML-based workflows	Version-controlled alongside your .tf code, in .github/workflows/
-Built-in secrets store	GitHub Secrets for cloud credentials, no separate credentials plugin
-PR integration	Official hashicorp/setup-terraform action can auto-comment plan output directly on PRs
-Environments feature	Built-in manual approval gates via GitHub Environments
-Marketplace actions	Official HashiCorp actions maintained directly by Terraform's creators
+|Aspect |	Benefit |
+|--------------|---------------|
+|Native to GitHub	  |No separate server to maintain (unlike Jenkins)|
+|YAML-based workflows	|Version-controlled alongside your .tf code, in .github/workflows/|
+|Built-in secrets store|	GitHub Secrets for cloud credentials, no separate credentials plugin|
+|PR integration	|Official hashicorp/setup-terraform action can auto-comment plan output directly on PRs|
+|Environments feature	|Built-in manual approval gates via GitHub Environments|
+|Marketplace |actions	Official HashiCorp actions maintained directly by Terraform's creators|
 
 ## High-Level Architecture
 
@@ -43,9 +44,12 @@ Marketplace actions	Official HashiCorp actions maintained directly by Terraform'
 Go to your repo → Settings → Secrets and variables → Actions → New repository secret
 
 Add:
-    * AWS_ACCESS_KEY_ID
-    * AWS_SECRET_ACCESS_KEY
-(or better, see the OIDC section below — no long-lived keys at all)
+
+  * AWS_ACCESS_KEY_ID
+
+  * AWS_SECRET_ACCESS_KEY
+
+  * (or better, see the OIDC section below — no long-lived keys at all)
 
 These are encrypted at rest, masked in logs automatically, and only injected into the workflow run as environment variables.
 
@@ -100,14 +104,15 @@ jobs:
 ```
 
 ### What each step does
-Step	Purpose
-actions/checkout@v4	Pulls your repo's code into the runner
-hashicorp/setup-terraform@v3	Official action — installs the specified Terraform CLI version
-fmt -check	Fails if code isn't properly formatted
-init	Downloads providers, connects to remote backend
-validate	Catches syntax errors
-plan	Computes and saves the plan
-apply (conditional)	Only runs on a push to main (not on PRs) — keeps PRs plan-only
+|Step |Purpose|
+|------|----------|
+|actions/checkout@v4	|Pulls your repo's code into the runner|
+|hashicorp/setup-terraform@v3	Official action| — installs the specified Terraform CLI version|
+|fmt -check	|Fails if code isn't properly formatted|
+|init	|Downloads providers, connects to remote backend|
+|validate	|Catches syntax errors|
+|plan	|Computes and saves the plan|
+|apply| (conditional)	Only runs on a push to main (not on PRs) — keeps PRs plan-only|
 
 **Key GitHub Actions concept:** if: github.ref == 'refs/heads/main' && github.event_name == 'push' — this condition ensures apply never runs on a pull request, only after code is actually merged to main.
 

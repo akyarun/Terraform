@@ -35,9 +35,9 @@
 ### Step 1: Prerequisites
 
 1. Jenkins server with:
-* Terraform binary installed (or installed dynamically per build)
-* Git plugin, Pipeline plugin (usually default)
-* Credentials plugin for storing cloud secrets securely
+    * Terraform binary installed (or installed dynamically per build)
+    * Git plugin, Pipeline plugin (usually default)
+    * Credentials plugin for storing cloud secrets securely
 
 2. Cloud credentials (e.g., AWS IAM user/role) with least-privilege permissions for the resources Terraform will manage
 
@@ -155,16 +155,18 @@ pipeline {
 ```
 
 #### What each stage does
-Stage	Purpose
-Checkout	Pulls your .tf code from Git
-Terraform Init	Downloads providers, connects to remote backend
-Format Check	Fails the build if code isn't formatted (terraform fmt) — enforces style consistency
-Validate	Catches syntax errors before wasting time on a plan
-Plan	Computes and saves the exact plan to tfplan — this is what gets reviewed
-Approval	Manual gate — a human clicks "Apply" in the Jenkins UI before anything touches real infra (critical for prod safety)
-Apply	Applies the exact previously reviewed plan file — no surprises between plan and apply
 
-TF_IN_AUTOMATION=true is a Terraform-recognized env var that slightly adjusts CLI output to be more automation-friendly (removes some "next steps" hints meant for interactive humans).
+|Stage  |	Purpose     |
+|---------|------------------|
+|Checkout	|Pulls your .tf code from Git|
+|Terraform Init	|Downloads providers, connects to remote backend|
+|Format Check	|Fails the build if code isn't formatted (terraform fmt) — enforces style consistency|
+|Validate	|Catches syntax errors before wasting time on a plan|
+|Plan	|Computes and saves the exact plan to tfplan — this is what gets reviewed|
+|Approval	|Manual gate — a human clicks "Apply" in the Jenkins UI before anything touches real infra (critical for prod safety)|
+|Apply	|Applies the exact previously reviewed plan file — no surprises between plan and apply|
+
+**TF_IN_AUTOMATION=true** is a Terraform-recognized env var that slightly adjusts CLI output to be more automation-friendly (removes some "next steps" hints meant for interactive humans).
 
 ### Step 5: The Manual Approval Gate (Deep Dive)
 
